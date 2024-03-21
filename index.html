@@ -79,7 +79,7 @@
             <div class="modal-footer justify-content-center">
               <button 
                 type="submit"
-                class="btn btn-custom"
+                class="btn btn-success"
                 data-bs-dismiss="modal"
               >
                 Add Task
@@ -96,12 +96,27 @@
             <h2 class="card-title mb-1">To Do</h2>
           </div>
           <div class="card-body bg-light">
-            <div id="todo-cards"></div>
+            
+            <div id="todo-cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <!-- insert cards here
+              <div class="card mb-2">  
+                <div>
+                  <div class="card-header">
+                    <h5>test</h5>
+                  </div>
+                  <p class="card-text">This is a test card</p>
+                  <p>03/21/2024</p>
+                  <button class="mb-3">Delete</button>
+                </div>
+              </div>
+              -->
+            </div>
+
           </div>
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex">
-        <div id="in-progress" class="card border-light mb-3 lane flex-grow-1">
+        <div id="in-progress" class="card border-light mb-3 lane flex-grow-1" ondrop="drop(event)" ondragover="allowDrop(event)">
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">In Progress</h2>
           </div>
@@ -116,7 +131,7 @@
               <h2 class="card-title mb-1">Done</h2>
             </div>
             <div class="card-body bg-light">
-              <div id="done-cards"></div>
+              <div id="done-cards"  ondrop="doneDrop(event)" ondragover="allowDrop(event)"></div>
           </div>
           </div>
       </div>
