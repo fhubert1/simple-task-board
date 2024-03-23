@@ -7,7 +7,11 @@ submitTaskEl = $("#task-form");
 addTaskTitleInputEl = $("#task-title-input");
 addTaskDateInputEl = $("#task-date-input");
 addTaskDescInputEl = $("#task-desc-input");
+
 toDoCardsEl = $("#todo-cards");
+inProgessCardsEl = $("#in-progress-cards");
+doneCardsEl = $("done-cards");
+
 taskCard = $("#task-card");
 deleteBtn = $("#delete-btn");
 
@@ -28,12 +32,13 @@ function generateTaskId() {
 }
 
 // Todo: create a function to create a task card
-function createTaskCard(task, cnt) {
+function createTaskCard(task) {
 
   // get todays date
   let today = dayjs().startOf('day');
   
-  let cardEl = $('<div id=task-card class="card mb-2" draggable="true" ondragstart="drag(event)">');
+  let cardEl = $('<div id=task class="task-card card mb-2" draggable="true" ondragstart="drag(event)" data-index="' + task.taskId +'">');
+  //let cardEl = $('<div id=task class="task-card card mb-2" data-index="' + task.taskId +'">');
   let divEl = $('<div>');
   
   
@@ -50,7 +55,7 @@ function createTaskCard(task, cnt) {
   let formatedDueDate = taskDate.format('MM/DD/YYYY');
   let dueDateEl = $('<p class="card-text">').text(formatedDueDate);
 
-  let deleteEl = $('<button id="delete-btn" class="mb-3 btn-delete-task" data-index="' +cnt +'">Delete</button>');
+  let deleteEl = $('<button id="delete-btn" class="mb-3 btn-delete-task">Delete</button>');
     
   //check for late submission
   if (taskDate.isBefore(today)) {
@@ -66,14 +71,38 @@ function createTaskCard(task, cnt) {
   cardEl.append(divEl);
   toDoCardsEl.append(cardEl);
 
-  // add one to row counter
-  //cnt++;
-
+  // store in local storage \
+  //console.log("InnerHTML of to do list: " + toDoCardsEl.html());
+  //localStorage.setItem('toDoCardsEl', toDoCardsEl.html());
+  //renderTaskList();
 
 }
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
+
+  // console.log("renderTaskList");
+
+  // $(".task-card").draggable({
+  //     revert: true,
+  //     cursor: "move"
+  // });
+
+
+  // $(".task-card").droppable({
+  //     accept: ".task-card",
+  //     drop: function (event, ui) {
+  //       handleDrop(event, ui);
+  //     }
+  // });
+
+  // $('.card-body').each(function () {
+  //     var dataIndex = $(this).attr('data-index');
+  //     var itemIndex = localStorage.getItem(dataIndex);
+  //     if (itemIndex) {
+  //       $('.draggable[data-index="' + intemIndex + '"]').detach().appendTo(this);
+  //     }
+  // })
 
 }
 
@@ -149,6 +178,9 @@ function handleDeleteTask(event) {
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
 
+  console.log(event);
+  console.log(ui);
+
 }
 
 // Reads projects from local storage and returns array of tasks objects.
@@ -171,6 +203,22 @@ function saveTasksToStorage(tasks) {
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
 
+  // $(".task-card").draggable();
+  // $(".task-card").droppable({
+  //     drop: function (event, ui) {
+  //       handleDrop(event, ui);
+  //     }
+  // });
+
+  // $('.task-card').each(function () {
+  //     var dataIndex = $(this).attr('data-index');
+  //     var itemIndex = localStorage.getItem(dataIndex);
+  //     if (itemIndex) {
+  //       $('.draggable[data-index="' + intemIndex + '"]').detach().appendTo(this);
+  //     }
+  // })
+  
+
   //$("#task-card").on('click', '.btn-delete-task', handleDeleteTask);
   //$("todo-cards").on('click', '.btn-delete-task', handleDeleteTask);
 
@@ -182,44 +230,72 @@ $(document).ready(function () {
   // })
 
   // prevent refresh 
-  window.addEventListener("beforeunload", function(event) {
-    // Cancel the event to prevent the page from refreshing
-    event.preventDefault();
-    // Chrome requires returnValue to be set
-    event.returnValue = '';
+  // window.addEventListener("beforeunload", function(event) {
+  //   // Cancel the event to prevent the page from refreshing
+  //   event.preventDefault();
+  //   // Chrome requires returnValue to be set
+  //   event.returnValue = '';
 
-  });
+  // });
 
 
 });
 
 
-submitTaskEl.on('submit', handleAddTask);
 
-function allowDrop(event) {
+ function allowDrop(event) {
   event.preventDefault();
-  console.log("allow drop: " + event.target.id);
+  console.log("allow drop called");
 }
 
-function drag(event) {
-  event.dataTransfer.setData("text/plain", event.target.id);
-  console.log("drag: " + event.target.id);
+ function drag(event) {
+
+
+  // event.dataTransfer.setData("text", event.target.id);
+  // console.log("drag: " + event.target.id);
+
+  event.dataTransfer.setData("text", event.target.parentNode);
+
 }
 
 function drop(event) {
 
   event.preventDefault();
-  var data = event.dataTransfer.getData("text/plain");
-  console.log("data: " + data);
-  var draggedElement = document.getElementById(data);
-  console.log("dragged Element: " + draggedElement);
-  console.log("target: " + event.target);
-  event.target.appendChild(draggedElement);
+
+  storeLists();
+  // var data = event.dataTransfer.getData("text");
+  // console.log("data: " + data);
+  // var draggedElement = document.getElementById(data);
+  // console.log("dragged Element: " + draggedElement);
+  // console.log("target: " + event.target);
+  // event.target.appendChild(draggedElement);
+
+
+  // event.preventDefault();
+  // var data = event.dataTransfer.getData("text");
+  // console.log("data: " + data);
+
+  // //var draggedElement = $("#task");
+  // var draggedElement = document.getElementById(data);
+  // console.log(draggedElement);
+  // var id = document.getElementById("id");
+  // // var draggedElementId = getElementById("id");
+
+  // console.log("id: " + id);
+  // console.log(draggedElementId);
+
+
+
+  // console.log("draggedElement: " + draggedElement);
+
+  // console.log("target: " + event.target);
+  // event.target.appendChild(draggedElement);
+
 }
 
 // not working
 //taskCard.on('click', '.btn-delete-task', handleDeleteTask);
-deleteBtn.on('click', '.btn-delete-task', handleDeleteTask);
+//deleteBtn.on('click', '.btn-delete-task', handleDeleteTask);
 
 // try add event listener - error taskCard.addEventListener is not a function
 // taskCard.addEventListener('click', function(event) {
@@ -238,4 +314,5 @@ deleteBtn.on('click', '.btn-delete-task', handleDeleteTask);
 
 
 
+submitTaskEl.on('submit', handleAddTask);
 

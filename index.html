@@ -95,9 +95,9 @@
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">To Do</h2>
           </div>
-          <div class="card-body bg-light">
+          <div class="card-body bg-light" ondrop="drop(event)" ondragover="allowDrop(event)">
             
-            <div id="todo-cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="todo-cards">
               <!-- insert cards here
               <div class="card mb-2">  
                 <div>
@@ -116,11 +116,11 @@
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex">
-        <div id="in-progress" class="card border-light mb-3 lane flex-grow-1" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <div id="in-progress" class="card border-light mb-3 lane flex-grow-1">
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">In Progress</h2>
           </div>
-          <div class="card-body bg-light">
+          <div class="card-body bg-light" ondrop="drop(event)" ondragover="allowDrop(event)">
             <div id="in-progress-cards"></div>
           </div>
         </div>
@@ -130,8 +130,8 @@
             <div class="card-header bg-white">
               <h2 class="card-title mb-1">Done</h2>
             </div>
-            <div class="card-body bg-light">
-              <div id="done-cards"  ondrop="doneDrop(event)" ondragover="allowDrop(event)"></div>
+            <div class="card-body bg-light" ondrop="drop(event)" ondragover="allowDrop(event)">
+              <div id="done-cards"></div>
           </div>
           </div>
       </div>
