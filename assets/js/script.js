@@ -38,7 +38,8 @@ function createTaskCard(task) {
   // get todays date
   let today = dayjs().startOf('day');
   
-  let cardEl = $('<div id=task class="task-card card mb-2" draggable="true" data-index="' + task.taskId +'">');
+  //let cardEl = $('<div id=task class="task-card card mb-2" draggable="true" data-index="' + task.taskId +'">');
+  let cardEl = $('<div id=task class="task-card card mb-2" data-index="' + task.taskId +'">');
   let divEl = $('<div>');
   
   
@@ -77,7 +78,7 @@ function createTaskCard(task) {
   cardEl.append(divEl);
   toDoCardsEl.append(cardEl);
 
-  console.log("InnerHTML of to do list: " + toDoCardsEl.html());
+  //console.log("InnerHTML of to do list: " + toDoCardsEl.html());
 
 
 }
@@ -168,9 +169,10 @@ function handleDeleteTask(event) {
 
 // Todo: create a function to handle dropping a task into a new status lane
 function handleDrop(event, ui) {
+  event.preventDefault();
 
-  console.log(event);
-  console.log(ui);
+  //console.log(event);
+  //console.log(ui);
 
 }
 
@@ -218,59 +220,46 @@ function storeLists() {
 $(document).ready(function () {
 
 
-  // $(function() {
-  //   taskCard.draggable();
-  //   $(".card-body").droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
-  //     }
-  //   });
-  
-  // });
-  
-  // $(function() {
-  //   taskCard.draggable();
-  //   cardBody.droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
-  //     }
-  //   });
-  
-  // });
-  
-  // $(function() {
-  //   taskCard.draggable();
-  //   cardBody.droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
-  //     }
-  //   });
-  
-  //});
-
-
 });
 
-$('.card-body').droppable({
-    drop: function(event, ui) {
-      console.log(event);
-      console.log(ui);
-    }
-});
 
 $('.card-body').sortable({
   placeholder: "ui-state-highlight"
 });
 
-// $('#in-progress-cards').sortable({
-//   placeholder: "ui-state-highlight"
-// });
-
 $('#todo-cards').sortable({
   placeholder: "ui-state-highlight"
+});
+
+$('.task-card').draggable();
+
+$('#in-progress-cards, #done-cards, .card-body').droppable({
+  greedy: true,
+  drop: function (event, ui) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var dragableElement = ui.draggable;
+    var draggableId = dragableElement.attr("data-index");
+    console.log("data index: " +draggableId);
+
+    console.log("id: " + $(this).attr("id"));
+    console.log("parent: " + $(this).parent());
+    $(this).append(dragableElement);
+    var droppableContainer = $(this);
+    console.log("container: " +droppableContainer)
+
+    //handleDrop(event, ui);
+
+    // $(this)
+    //     .append(ui.helper.clone(true).css({
+    //       position: 'relative',
+    //       left: '0px',
+    //       top: '0px'
+    //     }));
+
+  }
+
 });
 
 
