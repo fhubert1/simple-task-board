@@ -12,9 +12,8 @@ toDoCardsEl = $("#todo-cards");
 inProgessCardsEl = $("#in-progress-cards");
 doneCardsEl = $("#done-cards");
 
-taskCard = $(".task-card");
+taskCard = $("#task-card");
 deleteBtn = $("#delete-btn");
-cardBody = $(".card-body");
 
 // task object    
 var newTaskRecord = {
@@ -38,7 +37,8 @@ function createTaskCard(task) {
   // get todays date
   let today = dayjs().startOf('day');
   
-  let cardEl = $('<div id=task class="task-card card mb-2" draggable="true" data-index="' + task.taskId +'">');
+  let cardEl = $('<div id=task class="task-card card mb-2" draggable="true" ondragstart="drag(event)" data-index="' + task.taskId +'">');
+  //let cardEl = $('<div id=task class="task-card card mb-2" data-index="' + task.taskId +'">');
   let divEl = $('<div>');
   
   
@@ -55,13 +55,7 @@ function createTaskCard(task) {
   let formatedDueDate = taskDate.format('MM/DD/YYYY');
   let dueDateEl = $('<p class="card-text">').text(formatedDueDate);
 
-  let deleteEl = $('<button/>', {
-    text: 'Delete',
-    click: handleDeleteTask
-  });
-  deleteEl.addClass('mb-3 btn-delete-task');
-  deleteEl.attr('data-index', task.taskId);
-  //let deleteEl = $('<button id="delete-btn" type="submit" class="mb-3 btn-delete-task">Delete</button>');
+  let deleteEl = $('<button id="delete-btn" class="mb-3 btn-delete-task">Delete</button>');
     
   //check for late submission
   if (taskDate.isBefore(today)) {
@@ -78,13 +72,35 @@ function createTaskCard(task) {
   toDoCardsEl.append(cardEl);
 
   console.log("InnerHTML of to do list: " + toDoCardsEl.html());
-
+  //renderTaskList();
 
 }
 
 // Todo: create a function to render the task list and make cards draggable
 function renderTaskList() {
 
+  // console.log("renderTaskList");
+
+  // $(".task-card").draggable({
+  //     revert: true,
+  //     cursor: "move"
+  // });
+
+
+  // $(".task-card").droppable({
+  //     accept: ".task-card",
+  //     drop: function (event, ui) {
+  //       handleDrop(event, ui);
+  //     }
+  // });
+
+  // $('.card-body').each(function () {
+  //     var dataIndex = $(this).attr('data-index');
+  //     var itemIndex = localStorage.getItem(dataIndex);
+  //     if (itemIndex) {
+  //       $('.draggable[data-index="' + intemIndex + '"]').detach().appendTo(this);
+  //     }
+  // })
 
 }
 
@@ -106,12 +122,12 @@ function handleAddTask(event) {
     data.description = taskDesc
 
     // add task to local storage
-    var tasksLS = readTasksFromStorage("todo-cards");
+    var tasksLS = readTasksFromStorage();
     tasksLS.push(data);
-    saveTasksToStorage("todo-cards", tasksLS);
+    saveTasksToStorage(tasksLS);
 
     // print task to to do list
-    printTasksData("todo-cards");
+    printTasksData();
 
     // clear form
     addTaskTitleInputEl.val('');
@@ -121,22 +137,20 @@ function handleAddTask(event) {
 }
 
 // Gets project data from local storage and displays it
-function printTasksData(lsKey) {
+function printTasksData() {
 
     // clear current projects on the page
-    if (lsKey === "todo-cards") {
-      toDoCardsEl.empty();
+    toDoCardsEl.innerHTML = '';
   
-      // get projects from localStorage
-      var tasks = readTasksFromStorage(lsKey);
+    // get projects from localStorage
+    var tasks = readTasksFromStorage();
   
-      // loop through each project and create a row
-      var cnt = 1;
-      tasks.forEach(data => {
-        createTaskCard(data, cnt);
-        cnt++;
-      })
-    }
+    // loop through each project and create a row
+    var cnt = 1;
+    tasks.forEach(data => {
+      createTaskCard(data, cnt);
+      cnt++;
+    })
    
 }
 
@@ -145,24 +159,16 @@ function handleDeleteTask(event) {
 
   event.preventDefault();
 
-  var lsKey = $(event.target.parentNode.parentNode.parentNode).attr('id');
-  console.log("ggparent id: " + $(event.target.parentNode.parentNode.parentNode).attr('id'));
+  console.log(event);
 
-
-  var taskCardIndex = $(this).attr('data-index');
+  var taskCardIndex = parseInt($(this).attr('data-index'));
   console.log(taskCardIndex);
+  var tasks = readTasksFromStorage();
+  tasks.splice(taskCardIndex, 1);
 
-  var tasks = readTasksFromStorage(lsKey);
-  for (let x = 0; x < tasks.length; x++) {
-    if (tasks[x].taskId === taskCardIndex) {
-      tasks.splice(tasks[x], 1);
-    }
-  }
-  
+  saveTasksToStorage(tasks);
 
-  saveTasksToStorage(lsKey, tasks);
-
-  printTasksData(lsKey);
+  printTasksData();
 
 }
 
@@ -176,8 +182,8 @@ function handleDrop(event, ui) {
 
 // Reads projects from local storage and returns array of tasks objects.
 // Returns an empty array ([]) if there aren't any tasks.
-function readTasksFromStorage(lsKey) {
-    var tasks = localStorage.getItem(lsKey);
+function readTasksFromStorage() {
+    var tasks = localStorage.getItem('tasks');
     if (tasks) {
       tasks = JSON.parse(tasks);
     } else {
@@ -187,8 +193,8 @@ function readTasksFromStorage(lsKey) {
 }
 
 // Takes an array of tasks and saves them in localStorage.
-function saveTasksToStorage(lsKey, tasks) {
-    localStorage.setItem(lsKey, JSON.stringify(tasks));
+function saveTasksToStorage(tasks) {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 function storeLists() {
@@ -217,62 +223,66 @@ function storeLists() {
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
 
-
-  // $(function() {
-  //   taskCard.draggable();
-  //   $(".card-body").droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
+  // $(".task-card").draggable();
+  // $(".task-card").droppable({
+  //     drop: function (event, ui) {
+  //       handleDrop(event, ui);
   //     }
-  //   });
-  
   // });
-  
-  // $(function() {
-  //   taskCard.draggable();
-  //   cardBody.droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
+
+  // $('.task-card').each(function () {
+  //     var dataIndex = $(this).attr('data-index');
+  //     var itemIndex = localStorage.getItem(dataIndex);
+  //     if (itemIndex) {
+  //       $('.draggable[data-index="' + intemIndex + '"]').detach().appendTo(this);
   //     }
-  //   });
+  // })
   
+
+  //$("#task-card").on('click', '.btn-delete-task', handleDeleteTask);
+  //$("todo-cards").on('click', '.btn-delete-task', handleDeleteTask);
+
+  // document.getElementById('task-card').addEventListener('click', function(event) {
+  //   console.log("inside task card to delete card");
+  
+  //   event.stopPropagaion();
+  
+  // })
+
+  // prevent refresh 
+  // window.addEventListener("beforeunload", function(event) {
+  //   // Cancel the event to prevent the page from refreshing
+  //   event.preventDefault();
+  //   // Chrome requires returnValue to be set
+  //   event.returnValue = '';
+
   // });
-  
-  // $(function() {
-  //   taskCard.draggable();
-  //   cardBody.droppable({
-  //     drop: function(event, ui) {
-  //       console.log(event);
-  //       console.log(ui);
-  //     }
-  //   });
-  
-  //});
 
 
 });
 
-$('.card-body').droppable({
-    drop: function(event, ui) {
-      console.log(event);
-      console.log(ui);
-    }
-});
+function allowDrop(event) {
+  event.preventDefault();
+//  console.log("allow drop: " + event.target.id);
+}
 
-$('.card-body').sortable({
-  placeholder: "ui-state-highlight"
-});
+function drag(event) {
+  event.dataTransfer.setData("text/plain", event.target.id);
+//  console.log("drag: " + event.target.id);
+}
 
-// $('#in-progress-cards').sortable({
-//   placeholder: "ui-state-highlight"
-// });
+function drop(event) {
 
-$('#todo-cards').sortable({
-  placeholder: "ui-state-highlight"
-});
-
-
+  event.preventDefault();
+  var data = event.dataTransfer.getData("text/plain");
+  console.log("data: " + data);
+  var draggedElement = document.getElementById(data);
+// console.log("dragged Element: " + draggedElement);
+//  console.log("target: " + event.target);
+  //event.target.appendChild(draggedElement);
+  event.target.append(draggedElement);
+  storeLists();
+}
 
 submitTaskEl.on('submit', handleAddTask);
+
