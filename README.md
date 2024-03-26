@@ -34,9 +34,21 @@ WHEN I refresh the page
 THEN the saved tasks persist
 
 ## Screenshots
+![Index](/assets/images/Screenshot_index.jpg)
 
+![Add Task](./assets/images/Screenshot_add_task_modal.jpg)
+
+![3 Tasks Added](./assets/images/Screenshot_3_tasks.jpg)
+
+![3 Lanes](./assets/images/Screenshot_3_lanes.jpg)
 
 ## Deployment
 
+[Task Board](https://fhubert1.github.io/simple-task-board/)
+
+[Repo](https://github.com/fhubert1/simple-task-board)
+
 
 ## Notes
+
+Received assistance with the dragging and dropping of elements from Professor on 3/21 and 3/25 during office hours.  Provided sample code on using the $('#in-progess').droppable logic.  Determined that the event was firing further up the DOM tree than I expected.  
