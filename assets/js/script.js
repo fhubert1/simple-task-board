@@ -33,7 +33,7 @@ function generateTaskId() {
 }
 
 // Todo: create a function to create a task card
-function createTaskCard(task) {
+function createTaskCard(task, lane) {
 
   // get todays date
   let today = dayjs().startOf('day');
@@ -76,15 +76,19 @@ function createTaskCard(task) {
   // append all elements
   divEl.append(cardHeaderDivEl, descEl, dueDateEl, deleteEl);
   cardEl.append(divEl);
-  toDoCardsEl.append(cardEl);
+
+
+  if (lane == "todo-cards") {
+    toDoCardsEl.append(cardEl);
+  } else if (lane === "in-progress-cards") {
+    inProgessCardsEl.append(cardEl);
+  } else if (lane === "done-cards") {
+    cardEl.removeClass('task-due-today');
+    cardEl.removeClass('task-late');
+    doneCardsEl.append(cardEl);
+  }
 
   //console.log("InnerHTML of to do list: " + toDoCardsEl.html());
-
-
-}
-
-// Todo: create a function to render the task list and make cards draggable
-function renderTaskList() {
 
 
 }
@@ -132,10 +136,17 @@ function printTasksData(lsKey) {
       var tasks = readTasksFromStorage(lsKey);
   
       // loop through each project and create a row
-      var cnt = 1;
       tasks.forEach(data => {
-        createTaskCard(data, cnt);
-        cnt++;
+        createTaskCard(data, lsKey);
+      })
+    } else if (lsKey === "in-progress-cards") {
+      inProgessCardsEl.empty();
+
+      var tasks = readTasksFromStorage(lsKey);
+  
+      // loop through each project and create a row
+      tasks.forEach(data => {
+        createTaskCard(data, lsKey);
       })
     }
    
@@ -159,10 +170,8 @@ function handleDeleteTask(event) {
       tasks.splice(tasks[x], 1);
     }
   }
-  
 
   saveTasksToStorage(lsKey, tasks);
-
   printTasksData(lsKey);
 
 }
@@ -202,14 +211,6 @@ function storeLists() {
   console.log("InnerHTML of in progress list: " + inProgessCardsEl.html());
   localStorage.setItem('inProgressCardsEl', inProgessCardsEl.html());
 
-  // Remove class "color bg" from the innerHTML
-  // innerHTML = doneCardsEl.html();
-  // innerHTML = innerHTML.replace(/ class="task-due-today"/g, '');
-  // innerHTML = innerHTML.replace(/ class="task-late"/g, '');
-  // console.log(innerHTML);
-
-  // Set the updated innerHTML back to the parent element
-  //doneCardsEl.innerHTML = innerHTML;
   console.log("InnerHTML of done list: " + doneCardsEl.html());
   localStorage.setItem('doneCardsEl', doneCardsEl.html());
   
@@ -219,9 +220,49 @@ function storeLists() {
 // Todo: when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {
 
+  $('.task-card').draggable();
+
+  $('#in-progress').droppable({
+    drop: function (event, ui) {
+
+      var dragableElement = ui.draggable;
+      var draggableId = dragableElement.attr("data-index");
+      console.log("data index: " + draggableId);
+      var droppableId = $(this).attr("id");
+
+      // Check if the dropped element is being moved to the in-progress lane
+      var toTasksLs = readTasksFromStorage("todo-cards");
+      var inProgressTasksLs = readTasksFromStorage("in-progress-cards");
+      var doneTasksLs = readTasksFromStorage("done-cards");
+
+      if (droppableId === "in-progress") {
+        // find item in todo array
+        for (let x = 0; x < toTasksLs.length; x++) {
+          if (toTasksLs[x].taskId === draggableId) {
+            var moveThisRow = toTasksLs[x];
+            toTasksLs.splice(toTasksLs[x], 1);
+          }
+        }
+
+        inProgressTasksLs.push(moveThisRow);
+
+        // add task to local storage
+        saveTasksToStorage("todo-cards", toTasksLs);
+        saveTasksToStorage("in-progress-cards", inProgressTasksLs);
+        
+        printTasksData("todo-cards");        
+        printTasksData("in-progress-cards"); 
+
+      }
+
+      // console.log("id: " + $(this).attr("id"));
+      console.log("parent: " + $(this).parent());
+
+    }
+
+  });
 
 });
-
 
 $('.card-body').sortable({
   placeholder: "ui-state-highlight"
@@ -231,37 +272,17 @@ $('#todo-cards').sortable({
   placeholder: "ui-state-highlight"
 });
 
-$('.task-card').draggable();
+$('#in-progress-cards').sortable({
+  placeholder: "ui-state-highlight"
+});
 
-$('#in-progress-cards, #done-cards, .card-body').droppable({
-  greedy: true,
-  drop: function (event, ui) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    var dragableElement = ui.draggable;
-    var draggableId = dragableElement.attr("data-index");
-    console.log("data index: " +draggableId);
-
-    console.log("id: " + $(this).attr("id"));
-    console.log("parent: " + $(this).parent());
-    $(this).append(dragableElement);
-    var droppableContainer = $(this);
-    console.log("container: " +droppableContainer)
-
-    //handleDrop(event, ui);
-
-    // $(this)
-    //     .append(ui.helper.clone(true).css({
-    //       position: 'relative',
-    //       left: '0px',
-    //       top: '0px'
-    //     }));
-
-  }
-
+$('#done-cards').sortable({
+  placeholder: "ui-state-highlight"
 });
 
 
-
 submitTaskEl.on('submit', handleAddTask);
+
+printTasksData("todo-cards");
+printTasksData("in-progress-cards");
+printTasksData("done-cards");
